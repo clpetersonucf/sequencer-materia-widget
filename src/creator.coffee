@@ -11,6 +11,8 @@ Namespace('Sequencer').Creator = do ->
 	_numTiles = 0
 	_maxTiles = 20
 
+	_pendingMediaUploadTarget = null
+
 	# strings containing tutorial texts, boolean for tutorial mode
 	_tutorial_help = false
 	_openQ = null
@@ -47,7 +49,16 @@ Namespace('Sequencer').Creator = do ->
 
 	# This basic widget does not support media
 	onMediaImportComplete = (media) ->
-		null
+		console.log "I'm getting called!!"
+		unless _pendingMediaUploadTarget
+			console.log "no media import target set, ABORT!!!!"
+			return false
+
+		source = Materia.CreatorCore.getMediaUrl media[0].id
+		img = $('<img>').attr('src', source)
+		$(_pendingMediaUploadTarget).find('.media-upload-btn').remove()
+		$(_pendingMediaUploadTarget).find('.media-preview').append(img)
+		_pendingMediaUploadTarget = null
 
 	# Set up page and listen
 	_buildDisplay = (title = 'Default test Title', widget, qset, version) ->
@@ -200,6 +211,17 @@ Namespace('Sequencer').Creator = do ->
 		$(tileSlot).find('.tile-text').focus().on('keyup', (e) ->
 			$('#second_step').css('display', 'none')
 		)
+
+		$(tileSlot).find('.media-upload-btn').on('click', (e) ->
+			_pendingMediaUploadTarget = $(e.target).parent()
+			console.log _pendingMediaUploadTarget
+			console.log "Media upload requested from target!"
+			# console.log target
+			Materia.CreatorCore.showMediaImporter()
+		)
+
+	# _handleMediaUpload = (target) ->
+		# stuff
 
 	# Change the number on the sliders
 	_updateTileNums = () ->

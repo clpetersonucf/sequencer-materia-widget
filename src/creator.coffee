@@ -49,16 +49,29 @@ Namespace('Sequencer').Creator = do ->
 
 	# This basic widget does not support media
 	onMediaImportComplete = (media) ->
-		console.log "I'm getting called!!"
-		unless _pendingMediaUploadTarget
-			console.log "no media import target set, ABORT!!!!"
-			return false
+		unless _pendingMediaUploadTarget then return false
+
+		# remove existing image (if replacing an existing one)
+		$(_pendingMediaUploadTarget).find('img').remove()
 
 		source = Materia.CreatorCore.getMediaUrl media[0].id
-		img = $('<img>').attr('src', source)
-		$(_pendingMediaUploadTarget).find('.media-upload-btn').remove()
-		$(_pendingMediaUploadTarget).find('.media-preview').append(img)
+		img = $('<img>').attr('src', source).attr('data-url', media[0].id)
+		$(_pendingMediaUploadTarget).find('.media-upload-btn').hide()
+		$(_pendingMediaUploadTarget).find('.media-preview').show().prepend(img)
+
+		$(_pendingMediaUploadTarget).find('.change-media-btn').on('click', (e) ->
+			Materia.CreatorCore.showMediaImporter()
+
+			_pendingMediaUploadTarget = $(e.target).parent().parent()
+		)
+
+		$(_pendingMediaUploadTarget).find('.remove-media-btn').on('click', (e) ->
+			$(e.target).parent().hide().find('img').remove()
+			$(e.target).parent().parent().find('.media-upload-btn').show()
+		)
 		_pendingMediaUploadTarget = null
+
+
 
 	# Set up page and listen
 	_buildDisplay = (title = 'Default test Title', widget, qset, version) ->
@@ -214,8 +227,9 @@ Namespace('Sequencer').Creator = do ->
 
 		$(tileSlot).find('.media-upload-btn').on('click', (e) ->
 			_pendingMediaUploadTarget = $(e.target).parent()
-			console.log _pendingMediaUploadTarget
-			console.log "Media upload requested from target!"
+			# $(e.target).hide()
+			# console.log _pendingMediaUploadTarget
+			# console.log "Media upload requested from target!"
 			# console.log target
 			Materia.CreatorCore.showMediaImporter()
 		)
@@ -273,6 +287,7 @@ Namespace('Sequencer').Creator = do ->
 			tileName = _validateTileString 'tile-text', $(t).find('.title').val()
 			tileClue = _validateTileString 'clue-text', $(t).find('.cluetext').val()
 			id = $(t).attr('data-id')
+			asset = $(t).find('img').attr('data-url')
 
 			if tileName is -1 or tileClue is -1
 				return -1
@@ -293,8 +308,10 @@ Namespace('Sequencer').Creator = do ->
 				options:
 					description: tileClue
 			}
+			if asset then item.options.image = asset
 			tileList.items.push item
 
+		console.log tileList
 		tileList
 
 	# Returns the tile if valid or null if not changed

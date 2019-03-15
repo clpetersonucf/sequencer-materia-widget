@@ -31,6 +31,7 @@ Namespace('Sequencer').Creator = do ->
 		_buildDisplay 'My Sequencer Widget', widget
 
 	initExistingWidget = (title, widget, qset, version, baseUrl) ->
+		console.log qset
 		_buildDisplay title, widget, qset, version
 
 	onSaveClicked = (mode = 'save') ->
@@ -51,26 +52,35 @@ Namespace('Sequencer').Creator = do ->
 	onMediaImportComplete = (media) ->
 		unless _pendingMediaUploadTarget then return false
 
+		_configureMediaLayoutAndListeners(_pendingMediaUploadTarget, media[0].id)
+
+
+	_configureMediaLayoutAndListeners = (target, mediaId) ->
+
 		# remove existing image (if replacing an existing one)
-		$(_pendingMediaUploadTarget).find('img').remove()
+		$(target).find('img').remove()
 
-		source = Materia.CreatorCore.getMediaUrl media[0].id
-		img = $('<img>').attr('src', source).attr('data-url', media[0].id)
-		$(_pendingMediaUploadTarget).find('.media-upload-btn').hide()
-		$(_pendingMediaUploadTarget).find('.media-preview').show().prepend(img)
+		# get media url and prepend the image to the media-preview section
+		source = Materia.CreatorCore.getMediaUrl mediaId
+		img = $('<img>').attr('src', source).attr('data-url', mediaId)
 
-		$(_pendingMediaUploadTarget).find('.change-media-btn').on('click', (e) ->
+		$(target).find('.media-upload-btn').hide()
+		$(target).find('.media-preview').show().prepend(img)
+
+		# setup listener for change image button
+		$(target).find('.change-media-btn').on('click', (e) ->
 			Materia.CreatorCore.showMediaImporter()
 
 			_pendingMediaUploadTarget = $(e.target).parent().parent()
 		)
 
-		$(_pendingMediaUploadTarget).find('.remove-media-btn').on('click', (e) ->
+		# setup listener for remove image button
+		$(target).find('.remove-media-btn').on('click', (e) ->
 			$(e.target).parent().hide().find('img').remove()
 			$(e.target).parent().parent().find('.media-upload-btn').show()
 		)
-		_pendingMediaUploadTarget = null
 
+		_pendingMediaUploadTarget = null
 
 
 	# Set up page and listen
@@ -187,7 +197,9 @@ Namespace('Sequencer').Creator = do ->
 		$('#startPopup').removeClass 'show'
 		$('#fader').removeClass 'dim'
 
-		_addNewTileSlider(null, question.questions[0].text, question.options.description, question.id)
+		media = if question.options.asset? then question.options.asset.id else null
+
+		_addNewTileSlider(null, question.questions[0].text, question.options.description, media, question.id)
 
 	# Change radio game modes
 	_updateGameMode = ->
@@ -199,7 +211,7 @@ Namespace('Sequencer').Creator = do ->
 			$('#freeBox').removeClass 'show'
 
 	# Add new slider
-	_addNewTileSlider = (position, tileString = '', clueString = '', id = '') ->
+	_addNewTileSlider = (position, tileString = '', clueString = '', media = '', id = '') ->
 		if _numTiles is _maxTiles
 			Materia.CreatorCore.alert 'Maximum Tiles', 'You may only have up to '+ _maxTiles + ' tiles in this widget.'
 			return
@@ -225,17 +237,13 @@ Namespace('Sequencer').Creator = do ->
 			$('#second_step').css('display', 'none')
 		)
 
+		if media then _configureMediaLayoutAndListeners(tileSlot, media)
+
+		# Apply upload behavior listener regardless of whether an image is provided or not
 		$(tileSlot).find('.media-upload-btn').on('click', (e) ->
 			_pendingMediaUploadTarget = $(e.target).parent()
-			# $(e.target).hide()
-			# console.log _pendingMediaUploadTarget
-			# console.log "Media upload requested from target!"
-			# console.log target
 			Materia.CreatorCore.showMediaImporter()
 		)
-
-	# _handleMediaUpload = (target) ->
-		# stuff
 
 	# Change the number on the sliders
 	_updateTileNums = () ->
@@ -308,7 +316,12 @@ Namespace('Sequencer').Creator = do ->
 				options:
 					description: tileClue
 			}
-			if asset then item.options.image = asset
+			# if asset then item.options.image = asset
+			if asset
+				item.options.asset =
+					materiaType: 'asset',
+					id: asset
+
 			tileList.items.push item
 
 		console.log tileList

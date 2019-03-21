@@ -6,6 +6,7 @@
 
 		<!-- STYLESHEETS -->
 		<link rel="stylesheet" type="text/css" href="player.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
 		<script src="materia.enginecore.js"></script>
@@ -29,12 +30,19 @@
 	</header>
 	<div id="dragContainer">
 		<!-- tiles -->
-		<% for(var t in tiles) { var tile = tiles[t]; %>
+		<% for(var t in tiles) { var tile = tiles[t]; if (!tile.media) { %>
 			<div class="tile" data-id="<%= tile.id %>" id="<%= tile.id %>" tabindex="<%= parseInt(t, 10)+1+(tiles.length) %>">
-			<%= tile.name %>
-			<div class="clue" data-id="<%= tile.id %>"></div>
+				<%= tile.name %>
+				<div class="clue" data-id="<%= tile.id %>"></div>
 			</div>
-		<% } %>
+		<% } else { %>
+			<div class="tile has-media" data-id="<%= tile.id %>" id="<%= tile.id %>" tabindex="<%= parseInt(t, 10)+1+(tiles.length) %>">
+				<img src="<%= tile.media %>" alt="<%= tile.id %>" />
+				<span><%= tile.name %></span>
+				<div class="clue" data-id="<%= tile.id %>"></div>
+				<i class="material-icons focus-image" data-id="<%= tile.id %>">&#xE8FF;</i>
+			</div>
+		<% }} %>
 		<div id="tileFiller"></div>
 	</div>
 	<section id="tileSection"></section>
@@ -57,6 +65,7 @@
 <!-- clues -->
 <script type="text/template" id="tile-clue-window"><div id="clueHeader">
 		<h3 class="clueTitle"><%= name %></h3>
+		<% if (media) { %><img class="tile-image" src="<%= media %>" /><% } %>
 		<aside class="tile-clue-text">
 			<p class="clueDescription"><%= clue %></p>
 		</aside>

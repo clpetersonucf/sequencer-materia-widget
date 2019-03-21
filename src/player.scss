@@ -155,6 +155,23 @@ header {
 		font-size: 18px;
 		color: $titleblue;
 	}
+	.tile-image {
+		object-fit: contain;
+		max-width: 400px;
+		max-height: 280px;
+		margin-left: 10px;
+		border-radius: 3px;
+		// border: solid 1px rgba(108,81,57, 0.5);
+		border: solid 3px $green;
+		box-shadow: 0px 0px 2px rgba(0,0,0,0.25);
+	}
+
+	p.clueDescription {
+		// max-height: 110px;
+		margin: 15px 0px 0px 0px;
+
+		// overflow-y: scroll;
+	}
 }
 
 .fade {
@@ -252,7 +269,7 @@ header {
 	width: 164px;
 	position: absolute;
 	z-index: 10;
-	background: url("assets/sequencing_object.png") 0 0;
+	background: url("assets/retina_wood.png") repeat; // tile pattern courtesy of Toptal subtle patterns: toptal.com/designers/subtlepatterns/retina-wood/
 	font-family: sans-serif;
 	font-size: 20px;
 	color: $dgrey;
@@ -261,7 +278,7 @@ header {
 	vertical-align: middle;
 	bottom: auto;
 	border-radius: 5px;
-	box-shadow: 0 4px 3px -3px black;
+	box-shadow: 0 3000px rgba(145, 81, 24, 0.4) inset, 0 4px 3px -3px black;
 
 	@include boxSizing();
 
@@ -278,6 +295,103 @@ header {
 			background: url("assets/Clue_glow.png") 0 0;
 			height: 22px;
 			width: 16px;
+		}
+	}
+
+	&.has-media {
+		display: table;
+		padding: 0px;
+
+		// i.material-icons {
+		// 	display: none;
+		// 	position: absolute;
+
+		// 	bottom: 5px;
+		// 	left: 5px;
+
+		// 	font-size: 22px;
+		// }
+		i.focus-image {
+			display: inline-block;
+			position: absolute;
+			left: 5px;
+			bottom: 5px;
+
+			width:	22px;
+			height: 22px;
+
+			border-radius: 3px;
+
+			color: #fff;
+
+			opacity:0.75;
+			z-index: 10;
+
+			font-size: 22px;
+		}
+
+		.clue {
+			display: none;
+			pointer-events: none;
+		}
+
+		img {
+			object-fit: contain;
+			max-width: 154px;
+			max-height: 164px;
+			margin: 5px 0px;
+
+			border: solid 1px rgba(0,0,0,0.25);
+			border-radius:3px;
+
+			pointer-events: none;
+		}
+
+		span {
+			display: block;
+			padding: 5px;
+
+			pointer-events: none;
+		}
+
+		&.sequenced {
+			font-size: 14px !important;
+
+			i.focus-image {
+				background: rgba(0,0,0,0.5);
+			}
+
+			// i.material-icons {
+			// 	display: inline-block;
+
+			// 	left: 5px;
+			// 	top: 5px;
+
+			// 	width:	22px;
+			// 	height: 22px;
+
+			// 	border-radius: 3px;
+
+			// 	color: #fff;
+			// 	background: #000;
+
+			// 	opacity:0.5;
+			// 	z-index: 10;
+			// }
+
+			img {
+				width: 18%;
+				margin-left: 5%;
+				float: left;
+			}
+
+			span {
+				width: 70%;
+				float: right;
+				margin-left: 3%;
+				margin-right: 2%;
+				padding: 5px 0px;
+			}
 		}
 	}
 }

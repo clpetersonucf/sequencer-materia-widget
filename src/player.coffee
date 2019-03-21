@@ -75,7 +75,7 @@ Namespace('Sequencer').Engine = do ->
 		# Set current dragging term
 		_curterm = e.target
 
-		if _curterm.className == "clue"
+		if _curterm.className == "clue" or _curterm.className == "material-icons focus-image"
 			_curterm = _curterm.parentNode
 		_curterm.style.zIndex = ++_zIndex
 		_curterm.style.position = 'fixed'
@@ -240,6 +240,8 @@ Namespace('Sequencer').Engine = do ->
 						_sequence.splice(i, 1)
 				_sequence.push ~~_curterm.id
 
+			if ! $(_curterm).hasClass('sequenced') then $(_curterm).addClass('sequenced')
+
 		# Drop in tile section
 		else
 			# Prevent unwanted tile drops...and out of board movements
@@ -260,6 +262,8 @@ Namespace('Sequencer').Engine = do ->
 			$('#message').remove()
 			$('#tileSection').removeClass 'fade'
 			$('#submit').removeClass 'enabled'
+
+			if $(_curterm).hasClass('sequenced') then $(_curterm).removeClass('sequenced')
 
 		if _numTiles is 0
 			$('#numberBar').empty()
@@ -323,6 +327,8 @@ Namespace('Sequencer').Engine = do ->
 				angle: 0
 				dropOrder: 0
 				order: i
+
+			if tile.options.asset then _tiles[_ids[i]].media = Materia.Engine.getMediaUrl tile.options.asset.id
 			i++
 
 		_tiles
@@ -368,6 +374,10 @@ Namespace('Sequencer').Engine = do ->
 
 		# Reveal the clue for clicked tile
 		$('#dragContainer').on 'mousedown', '.clue', ->
+			$('header').addClass 'slideUp'
+			_revealClue $(this).data('id')
+
+		$('#dragContainer').on 'mousedown', '.focus-image', ->
 			$('header').addClass 'slideUp'
 			_revealClue $(this).data('id')
 
@@ -477,12 +487,18 @@ Namespace('Sequencer').Engine = do ->
 	# Show the clue from the id of the tile clicked
 	_revealClue = (id) ->
 
-
 		# Get data for new clue
 		tileClue = _.template $('#tile-clue-window').html()
 		$tileC = $ tileClue
 			name: _tiles[id].name,
 			clue: _tiles[id].clue
+			media: if _tiles[id].media then _tiles[id].media else null
+
+		# if _tiles[id].media then $tileC.media = _tiles[id].media
+		console.log $tileC
+		if $tileC.media then $tileC.find('.clueDescription').css({'maxHeight':'110px','overflowY':'scroll'})
+
+		console.log $tileC.find('.clueDescription')
 
 		# Remove old clue
 		clueBox = $('#clueHeader')
@@ -495,6 +511,23 @@ Namespace('Sequencer').Engine = do ->
 		clueBox = $('#clueHeader')
 		autoHeight = clueBox.css('height', 'auto').height();
 		clueBox.height('0px').transition({height: autoHeight}, 300);
+
+	# _revealImage = (id) ->
+	# 	tileClueWithImage = _.template $('#tile-clue-window').html()
+	# 	$tileInfo = $ tileClueWithImage
+	# 		name: _tiles[id].name,
+	# 		clue: _tiles[id].clue,
+	# 		media: _tiles[id].media
+
+	# 	clueBox = $('#clueHeader')
+	# 	clueBox.animate({height: 0}, 200)
+
+	# 	$('#clueHeader').remove()
+	# 	$('.board').append $tileInfo
+
+	# 	clueBox = $('#clueHeader')
+	# 	autoHeight = clueBox.css('height', 'auto').height();
+	# 	clueBox.height('0px').transition({height: autoHeight}, 300);
 
 	# Updates the numbers in the number bar when a tile is dropped or dragged in/out
 	_updateTileNums = () ->
